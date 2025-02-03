@@ -59,16 +59,20 @@ function getMathProperties(num) {
 
 // Define the GET route
 app.get('/number/:num', (req, res) => {
-    const num = parseInt(req.params.num, 10);
+    const num = req.params.num;
 
     // Check if the input is a valid integer
-    if (isNaN(num)) {
+    const numAsInt = parseInt(num, 10);
+
+    if (isNaN(numAsInt)) {
+        // If input is invalid, return 400 Bad Request with the new format
         return res.status(400).json({
-            error: 'Invalid input. Please provide a valid integer.'
+            number: num,
+            error: true
         });
     }
 
-    const result = getMathProperties(num);
+    const result = getMathProperties(numAsInt);
     return res.json(result);
 });
 
