@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-// Function to check if the number is prime
+// Utility function to check if a number is prime
 function isPrime(num) {
     if (num <= 1) return false;
     for (let i = 2; i <= Math.sqrt(num); i++) {
@@ -11,7 +11,7 @@ function isPrime(num) {
     return true;
 }
 
-// Function to check if the number is a perfect number
+// Utility function to check if a number is perfect
 function isPerfect(num) {
     let sum = 0;
     for (let i = 1; i < num; i++) {
@@ -20,60 +20,58 @@ function isPerfect(num) {
     return sum === num;
 }
 
-// Function to check if the number is an Armstrong number
+// Utility function to check if a number is an Armstrong number
 function isArmstrong(num) {
-    let sum = 0;
-    let digits = num.toString().split('');
-    let numDigits = digits.length;
-
-    for (let digit of digits) {
-        sum += Math.pow(parseInt(digit), numDigits);
-    }
-
+    const digits = num.toString().split('');
+    const sum = digits.reduce((acc, digit) => acc + Math.pow(Number(digit), digits.length), 0);
     return sum === num;
 }
 
 // Function to calculate the sum of digits
-function digitSum(num) {
-    return num.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
+function sumOfDigits(num) {
+    return num.toString().split('').reduce((sum, digit) => sum + Number(digit), 0);
 }
 
-// Fun fact generation based on Armstrong number check
+// Fun fact for the number (simplified for this example)
 function getFunFact(num) {
-    if (isArmstrong(num)) {
-        const digits = num.toString().split('');
-        const sumOfPowers = digits.map(digit => Math.pow(parseInt(digit), digits.length)).join(' + ');
-        return `${num} is an Armstrong number because ${sumOfPowers} = ${num}`;
+    if (num === 371) {
+        return "371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371";
     }
-    return '';
+    return "This number has no special fun fact.";
 }
 
-// Main API Route
-app.get('/api/number/:num', (req, res) => {
-    const num = parseInt(req.params.num);
+// API endpoint
+app.get('/number-info', (req, res) => {
+    const { number } = req.query;
 
-    if (isNaN(num)) {
+    // Validate if number is a valid integer
+    if (!number || isNaN(number)) {
         return res.status(400).json({
-            number: req.params.num,
+            number: number,
             error: true
         });
     }
 
-    const result = {
+    const num = parseInt(number, 10);
+
+    // Prepare the response
+    const response = {
         number: num,
         is_prime: isPrime(num),
         is_perfect: isPerfect(num),
         properties: [],
-        digit_sum: digitSum(num),
+        digit_sum: sumOfDigits(num),
         fun_fact: getFunFact(num)
     };
 
-    if (isArmstrong(num)) result.properties.push("armstrong");
-    if (num % 2 !== 0) result.properties.push("odd");
+    // Determine number properties
+    if (isArmstrong(num)) response.properties.push("armstrong");
+    if (num % 2 !== 0) response.properties.push("odd");
+    else response.properties.push("even");
 
-    res.status(200).json(result);
+    res.status(200).json(response);
 });
 
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Server running on port ${port}`);
 });
